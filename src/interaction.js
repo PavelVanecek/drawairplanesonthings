@@ -56,9 +56,141 @@ export class InteractionManager {
         document.getElementById('zoomOut').addEventListener('click', () => this.adjustZoom(-0.1));
         document.getElementById('addAnnotationBtn').addEventListener('click', () => this.addAnnotation());
         document.getElementById('removeAnnotationBtn').addEventListener('click', () => this.removeSelectedAnnotation());
+
+        // Touch Events
+        this.elements.dropZone.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+        this.elements.dropZone.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+        this.elements.dropZone.addEventListener('touchend', (e) => this.handleTouchEnd(e));
     }
 
     // --- Image Loading ---
+    // ... (keep existing methods)
+
+    // ... (add touch handlers)
+
+    handleTouchStart(e) {
+        if (e.touches.length === 1) {
+            // Analogous to mouseDown
+            this.handleSingleTouchStart(e.touches[0]);
+        } else if (e.touches.length === 2 && this.state.selectedAnnotationId) {
+            // Pinch/Rotate start
+            this.handleDoubleTouchStart(e);
+        }
+    }
+
+    handleSingleTouchStart(touch) {
+        // Check target like mousdown
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        const annotationWrapper = target.closest('.annotation-wrapper');
+
+        if (annotationWrapper) {
+            const id = annotationWrapper.dataset.id;
+            this.selectAnnotation(id);
+
+            // Check if handle (unlikely to hit perfectly with finger, but support it)
+            // Actually, for mobile, 2-finger rotate/scale is better than handle.
+            // But let's support handle dragging if they hit it.
+            if (target.closest('.rotate-handle')) {
+                // Synthesize mouse event object for minimal refactor? 
+                // Or just call startRotate logic with touch coordinates
+                this.startRotate({ clientX: touch.clientX, clientY: touch.clientY, stopPropagation: () => { }, preventDefault: () => { } }, id);
+            } else {
+                this.startDrag({ clientX: touch.clientX, clientY: touch.clientY }, id);
+            }
+            return;
+        }
+
+        // Background / Pan
+        if (this.state.selectedAnnotationId) {
+            this.selectAnnotation(null);
+        }
+
+        if (this.elements.image.src) {
+            this.state.isPanning = true;
+            this.state.panStart = { x: touch.clientX - this.state.pan.x, y: touch.clientY - this.state.pan.y };
+        }
+    }
+
+    handleDoubleTouchStart(e) {
+        e.preventDefault();
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+
+        const id = this.state.selectedAnnotationId;
+        if (!id) return;
+
+        this.state.isGestureInteraction = true;
+        this.state.activeInteractionId = id;
+
+        const p1 = { x: t1.clientX, y: t1.clientY };
+        const p2 = { x: t2.clientX, y: t2.clientY };
+
+        const annotation = this.getAnnotation(id);
+
+        this.state.gestureStart = {
+            distance: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+            angle: Math.atan2(p2.y - p1.y, p2.x - p1.x),
+            scale: annotation.scale,
+            rotation: annotation.rotation
+        };
+    }
+
+    handleTouchMove(e) {
+        e.preventDefault(); // Prevent scrolling
+
+        if (this.state.isGestureInteraction && e.touches.length === 2) {
+            this.handleDoubleTouchMove(e);
+            return;
+        }
+
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            // Reuse mouse move logic
+            this.handleMouseMove({
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                preventDefault: () => { }
+            });
+        }
+    }
+
+    handleDoubleTouchMove(e) {
+        const t1 = e.touches[0];
+        const t2 = e.touches[1];
+
+        const p1 = { x: t1.clientX, y: t1.clientY };
+        const p2 = { x: t2.clientX, y: t2.clientY };
+
+        const currentDistance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        const currentAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+        const annotation = this.getAnnotation(this.state.activeInteractionId);
+        if (!annotation) return;
+
+        // Scale
+        const scaleRatio = currentDistance / this.state.gestureStart.distance;
+        annotation.scale = this.state.gestureStart.scale * scaleRatio;
+
+        // Rotation
+        const angleDiff = currentAngle - this.state.gestureStart.angle;
+        annotation.rotation = this.state.gestureStart.rotation + (angleDiff * 180 / Math.PI);
+
+        this.renderAnnotationTransform(annotation);
+    }
+
+    handleTouchEnd(e) {
+        if (e.touches.length === 0) {
+            this.handleMouseUp();
+            this.state.isGestureInteraction = false;
+        } else if (e.touches.length === 1) {
+            // Switch back to single pointer mode logic if one finger lifted?
+            // Usually complicated. Lets just end gesture.
+            this.state.isGestureInteraction = false;
+            // Also end drag to avoid jumping
+            this.state.isDraggingAnnotation = false;
+            this.state.isPanning = false;
+        }
+    }
     loadImage(file) {
         if (!file) return;
         const reader = new FileReader();

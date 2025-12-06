@@ -213,6 +213,49 @@ body {
   /* Hide handle when not selected to reduce clutter */
 }
 
+/* Green Add Button */
+#addAnnotationBtn {
+  background-color: #22c55e;
+  /* Green-500 */
+  color: white;
+  border-width: 0;
+}
+
+#addAnnotationBtn:hover:not(:disabled) {
+  background-color: #16a34a;
+  /* Green-600 */
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .app-header h1 {
+    font-size: 0;
+    /* Hide text */
+  }
+
+  .app-header h1::before {
+    content: "✈️";
+    /* Show emoji */
+    font-size: 1.5rem;
+  }
+
+  .upload-btn {
+    display: none !important;
+    /* Hide header upload button */
+  }
+
+  /* Show export only? Or maybe simplify controls */
+  .controls {
+    gap: 0.5rem;
+  }
+
+  .btn {
+    padding: 0.5rem 0.75rem;
+    /* Smaller buttons */
+  }
+}
+
+
 
 /* Zoom Controls */
 .zoom-controls {
