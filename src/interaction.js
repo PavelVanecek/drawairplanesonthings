@@ -61,6 +61,14 @@ export class InteractionManager {
         this.elements.dropZone.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
         this.elements.dropZone.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
         this.elements.dropZone.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+
+        // Click to upload (delegated or direct)
+        const emptyState = document.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.addEventListener('click', () => {
+                this.elements.fileInput.click();
+            });
+        }
     }
 
     // --- Image Loading ---

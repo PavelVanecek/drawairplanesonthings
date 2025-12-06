@@ -123,7 +123,12 @@ body {
 
 .empty-state {
   text-align: center;
-  pointer-events: none;
+  color: var(--text-secondary);
+  pointer-events: auto;
+  /* Text shouldn't block drop, but container needs events?
+                           其实 dropZone handles drop. empty-state is inside.
+                           To be clickable, we need pointer-events auto. */
+  cursor: pointer;
 }
 
 .empty-state h2 {
@@ -252,6 +257,18 @@ body {
   .btn {
     padding: 0.5rem 0.75rem;
     /* Smaller buttons */
+  }
+
+  /* Mobile UX: Empty State */
+  .desktop-msg {
+    display: none;
+  }
+}
+
+/* Desktop default */
+@media (min-width: 601px) {
+  .mobile-msg {
+    display: none;
   }
 }
 
