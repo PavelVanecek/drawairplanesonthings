@@ -212,6 +212,11 @@ export class InteractionManager {
 
                 this.updateButtons();
 
+                // Track upload
+                if (typeof gtag === 'function') {
+                    gtag('event', 'image_uploaded');
+                }
+
                 // Add initial annotation
                 if (this.state.annotations.length === 0) {
                     this.addAnnotation();
@@ -418,6 +423,10 @@ export class InteractionManager {
         this.renderAnnotationTransform(newAnnotation);
 
         this.selectAnnotation(id);
+
+        if (typeof gtag === 'function') {
+            gtag('event', 'airplane_added');
+        }
     }
 
     removeSelectedAnnotation() {

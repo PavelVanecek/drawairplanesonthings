@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         manager.state.annotations
       );
 
+      if (typeof gtag === 'function') {
+        gtag('event', 'image_exported');
+      }
+
       btn.textContent = originalText;
       btn.disabled = false;
     }
