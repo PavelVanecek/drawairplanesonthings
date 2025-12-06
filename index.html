@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/src/assets/annotation.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Draw Airplanes on Things</title>
+  <link rel="stylesheet" href="./src/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1>Draw Airplanes on Things ✈️</h1>
+      <div class="controls">
+        <label class="btn btn-secondary upload-btn">
+          Upload Image
+          <input type="file" id="fileInput" accept="image/*" hidden />
+        </label>
+        <div class="separator"></div>
+        <button id="addAnnotationBtn" class="btn btn-secondary" disabled>+ Add</button>
+        <button id="removeAnnotationBtn" class="btn btn-secondary" disabled>Trash</button>
+        <div class="separator"></div>
+        <button id="exportBtn" class="btn btn-primary" disabled>Export Image</button>
+      </div>
+    </header>
+
+    <main class="editor-container">
+      <div id="dropZone" class="drop-zone">
+        <div class="empty-state">
+          <div class="icon-stack">🖼️</div>
+          <h2>Drag & Drop an image here</h2>
+          <p>or paste from clipboard (Cmd+V)</p>
+        </div>
+
+        <div id="canvasViewport" class="viewport hidden">
+          <!-- This container transforms for Zoom/Pan -->
+          <div id="canvasContent" class="content-layer">
+            <img id="targetImage" src="" alt="Target" draggable="false" />
+            <!-- Annotation Overlay -->
+            <div id="annotationContainer" class="annotation-layer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="zoom-controls">
+        <button id="zoomOut" class="btn-icon" aria-label="Zoom Out">−</button>
+        <span id="zoomLevel">100%</span>
+        <button id="zoomIn" class="btn-icon" aria-label="Zoom In">+</button>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
