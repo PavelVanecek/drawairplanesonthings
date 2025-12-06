@@ -1,3 +1,4 @@
+import annotationSvg from './assets/annotation.svg?raw';
 
 /**
  * State and logic for managing the interactive viewport and annotations
@@ -233,8 +234,8 @@ export class InteractionManager {
     async addAnnotation() {
         if (!this.elements.image.src) return;
 
-        const response = await fetch('/src/assets/annotation.svg');
-        const svgText = await response.text();
+        // Use imported raw SVG string
+        const svgText = annotationSvg;
 
         const id = 'ann-' + Date.now();
         const wrapper = document.createElement('div');
